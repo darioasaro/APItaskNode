@@ -1,9 +1,9 @@
 const mysql = require('mysql');
 var connection = mysql.createConnection({
-  host     : 'localhost',
-  user     : 'dario',
-  password :'1234',
-  database : 'tasks'
+  host     : process.env.DB_HOST ||'localhost',
+  user     : process.env.DB_USER || 'dario',
+  password :process.env.DB_PASSWORD || '1234',
+  database : process.env.DB_NAME || 'tasks'
 
 });
 
@@ -41,7 +41,25 @@ exports.show = (req,res)=>{
 
 }
 
+exports.delete =(req,res)=>{
+  console.log('parametro',req.params.id)
+  connection.query('DELETE FROM tarea WHERE id='+req.params.id,(err,rows)=>{ 
+        
+        if(err) throw err;
+        
+        res.json({message:'El registro se elimino'})
+    })
+
+}
+
+exports.upgrade = (req,res)=>{
+  
+  res.json({message:'El registro se elimino'})
+}
+
 exports.store = (req,res)=>{
    res.json({'post':'posteo post'})
 }
+
+
 
