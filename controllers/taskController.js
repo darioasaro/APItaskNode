@@ -1,25 +1,11 @@
-const mysql = require('mysql');
-var connection = mysql.createConnection({
-  host     : process.env.DB_HOST ||'localhost',
-  user     : process.env.DB_USER || 'dario',
-  password :process.env.DB_PASSWORD || '1234',
-  database : process.env.DB_NAME || 'tasks'
 
-});
-
-connection.connect((err) => {
-    if(err){
-      console.log('Error connecting to Db'+ err);
-      return;
-    }
-    console.log('Connection established');
-  });
-
+const db = require('../config/connection')
+const table = 'tarea'
   
   exports.index = ( req, res) => {
       
       
-     connection.query('SELECT * FROM tarea', (err,rows) => {
+    db.connection.query('SELECT * FROM tarea', (err,rows) => {
         if(err) throw err;
       
         console.log('Data received from Db:'+ rows);
@@ -29,10 +15,9 @@ connection.connect((err) => {
 
 }
 
-exports.show = (req,res)=>{
-    console.log('id reques',req.param.id); 
+exports.show = (req,res)=>{ 
     
-    connection.query('SELECT * FROM tarea WHERE id='+req.params.id,(err,rows)=>{ 
+    db.connection.query('SELECT * FROM tarea WHERE id='+req.params.id,(err,rows)=>{ 
         
         if(err) throw err;
         
@@ -41,9 +26,16 @@ exports.show = (req,res)=>{
 
 }
 
+exports.filter = (req,res)=>{
+  db.connection.query('SELECT * FROM tarea WHERE isDone=' + req.params.isDone,(err,rows)=>{
+    if(err) throw err;
+    res.json({'tasks':rows})
+  })
+}
+
 exports.delete =(req,res)=>{
-  console.log('parametro',req.params.id)
-  connection.query('DELETE FROM tarea WHERE id='+req.params.id,(err,rows)=>{ 
+  
+  db.connection.query('DELETE FROM tarea WHERE id='+req.params.id,(err,rows)=>{ 
         
         if(err) throw err;
         
@@ -53,12 +45,39 @@ exports.delete =(req,res)=>{
 }
 
 exports.upgrade = (req,res)=>{
-  
-  res.json({message:'El registro se elimino'})
+    console.log('parametros',req.params)
+    db.connection.query(`UPDATE ${table} SET isDone=${req.body.isDone} 
+    WHERE id = ${req.params.id}`,
+    (err,rows)=>{
+      if(err){
+        res.status(500).json({'error':'El registro no pudo ser modificado,intente nuevamente'})
+        throw err 
+      }
+      res.json({'post':'Registro Modificado'})
+      
+})
 }
 
 exports.store = (req,res)=>{
-   res.json({'post':'posteo post'})
+  console.log('body',req.body.titulo);
+  
+  
+  const {titulo,descripcion} = req.body;
+  
+  db.connection.query(
+    `INSERT INTO ${table}(titulo,descripcion,isDone) 
+    VALUES('${titulo}','${descripcion}',${0})`,
+    (err,rows)=>{
+      if(err){ 
+        res.status(500).json({'error':'El registro no pudo ser agregado,intente nuevamente'})
+        throw err
+      }
+      res.json({'post':'Registro agregado'})
+    
+    })
+    
+  
+  
 }
 
 

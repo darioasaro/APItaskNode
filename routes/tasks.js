@@ -7,9 +7,10 @@ const router = express.Router()
 
 router.get('/', taskController.index )
 router.get('/:id', taskController.show)
-router.post('/create',taskController.store)
+router.get('/:isDone',taskController.filter)
+router.post('/',taskController.store)
 router.delete('/:id',taskController.delete)
-router.put('/:id',taskController.upgrade)
-//router.post('/:id', ( req, res) => res.json({ message: "tasks" }) )
+router.patch('/:id',taskController.upgrade)
+
 
 module.exports = router
