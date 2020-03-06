@@ -1,11 +1,11 @@
 
 const db = require('../config/connection')
-const table = 'tarea'
+const table = 'tareas'
   
   exports.index = ( req, res) => {
       
       
-    db.connection.query('SELECT * FROM tarea', (err,rows) => {
+    db.connection.query('SELECT * FROM '+table, (err,rows) => {
         if(err) throw err;
       
         console.log('Data received from Db:'+ rows);
@@ -27,7 +27,7 @@ exports.show = (req,res)=>{
 }
 
 exports.filter = (req,res)=>{
-  db.connection.query('SELECT * FROM tarea WHERE isDone=' + req.params.isDone,(err,rows)=>{
+  db.connection.query('SELECT * FROM ',+table,'WHERE isDone=' + req.params.isDone,(err,rows)=>{
     if(err) throw err;
     res.json({'tasks':rows})
   })
@@ -35,7 +35,7 @@ exports.filter = (req,res)=>{
 
 exports.delete =(req,res)=>{
   
-  db.connection.query('DELETE FROM tarea WHERE id='+req.params.id,(err,rows)=>{ 
+  db.connection.query('DELETE FROM ',+table,'WHERE id='+req.params.id,(err,rows)=>{ 
         
         if(err) throw err;
         
@@ -78,6 +78,21 @@ exports.store = (req,res)=>{
     
   
   
+}
+
+exports.edit = (req,res)=>{
+  const {titulo,descripcion} = req.body; 
+
+  db.connection.query(
+    `UPDATE ${table} SET titulo = '${titulo}' , descripcion = '${descripcion}' WHERE id ='${req.params.id}' `,
+    (err,rows)=>{
+      if(err){ 
+        res.status(500).json({'error':'El registro no pudo ser agregado,intente nuevamente'})
+        throw err
+      }
+      res.json({'post':'Registro agregado'})
+    
+    })
 }
 
 

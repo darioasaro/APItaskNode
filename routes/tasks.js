@@ -11,6 +11,7 @@ router.get('/:isDone',taskController.filter)
 router.post('/',taskController.store)
 router.delete('/:id',taskController.delete)
 router.patch('/:id',taskController.upgrade)
+router.put('/:id',taskController.edit)
 
 
 module.exports = router
