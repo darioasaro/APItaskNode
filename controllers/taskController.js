@@ -1,11 +1,12 @@
 
 const db = require('../config/connection')
-const table = 'tareas'
+const moment = require ('moment')
+const table = 'tarea'
   
   exports.index = ( req, res) => {
       
       
-    db.connection.query('SELECT * FROM '+table, (err,rows) => {
+    db.connection.query(`SELECT * FROM ${table} WHERE delete_at IS NULL `, (err,rows) => {
         if(err) throw err;
       
         console.log('Data received from Db:'+ rows);
@@ -35,7 +36,7 @@ exports.filter = (req,res)=>{
 
 exports.delete =(req,res)=>{
   
-  db.connection.query('DELETE FROM ',+table,'WHERE id='+req.params.id,(err,rows)=>{ 
+  db.connection.query(`UPDATE ${table} SET delete_at='${moment().format('LLL')}'WHERE id=${req.params.id}`,(err,rows)=>{ 
         
         if(err) throw err;
         
@@ -46,7 +47,7 @@ exports.delete =(req,res)=>{
 
 exports.upgrade = (req,res)=>{
     console.log('parametros',req.params)
-    db.connection.query(`UPDATE ${table} SET isDone=${req.body.isDone} 
+    db.connection.query(`UPDATE ${table} SET isDone=${req.body.isDone},update_at='${moment().format('LLL')}'
     WHERE id = ${req.params.id}`,
     (err,rows)=>{
       if(err){
@@ -65,8 +66,8 @@ exports.store = (req,res)=>{
   const {titulo,descripcion} = req.body;
   
   db.connection.query(
-    `INSERT INTO ${table}(titulo,descripcion,isDone) 
-    VALUES('${titulo}','${descripcion}',${0})`,
+    `INSERT INTO ${table}(titulo,descripcion,isDone,create_at,update_at) 
+    VALUES('${titulo}','${descripcion}',${0},'${moment().format('LLL')}','${moment().format('LLL')}')`,
     (err,rows)=>{
       if(err){ 
         res.status(500).json({'error':'El registro no pudo ser agregado,intente nuevamente'})
@@ -84,7 +85,7 @@ exports.edit = (req,res)=>{
   const {titulo,descripcion} = req.body; 
 
   db.connection.query(
-    `UPDATE ${table} SET titulo = '${titulo}' , descripcion = '${descripcion}' WHERE id ='${req.params.id}' `,
+    `UPDATE ${table} SET titulo = '${titulo}' , descripcion = '${descripcion}',update_at='${moment().format('LLL')}' WHERE id ='${req.params.id}' `,
     (err,rows)=>{
       if(err){ 
         res.status(500).json({'error':'El registro no pudo ser agregado,intente nuevamente'})
@@ -94,6 +95,9 @@ exports.edit = (req,res)=>{
     
     })
 }
-
+exports.login=(req,res)=>{
+  console.log(req.query);
+  
+}
 
 
