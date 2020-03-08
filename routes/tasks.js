@@ -5,7 +5,7 @@ const express = require( 'express' )
 
 const router = express.Router()
 
-router.get('/', taskController.index )
+router.get('/:user', taskController.index )
 router.get('/:id', taskController.show)
 router.get('/:isDone',taskController.filter)
 router.post('/',taskController.store)
