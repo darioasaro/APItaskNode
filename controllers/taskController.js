@@ -5,40 +5,25 @@ const table = "tarea";
 //------exporta las tareas del usuario logeado en la pagina
 exports.index = (req, res) => {
   let user = req.params.user;
-    
-  if(user){
+
+  if (user) {
     db.connection.query(
-    `SELECT id FROM users WHERE name = ?`,
-    [user],
-    (err, row) => {
-      if (err) {
-        res.status(500).json({ error: "dbError" });
-        throw err;
+      `SELECT * FROM tarea t 
+    INNER JOIN users u ON t.id_user = u.id 
+    WHERE u.name = ? 
+    AND t.delete_at IS NULL`,
+      [user],
+      (err, rows) => {
+        if (err) throw err;
+
+        console.log("Data received from Db:" + rows);
+
+        res.json({ tasks: rows });
       }
-      if (row.length > 0) {
-        //Sub consulta con el id resultado de la busqueda de usuario
-        db.connection.query(
-          `SELECT * FROM ${table} 
-                        WHERE delete_at IS NULL && 
-                        id_user=? `,
-          [row[0].id],
-          (err, rows) => {
-            if (err) throw err;
-
-            console.log("Data received from Db:" + rows);
-
-            res.json({ tasks: rows });
-          }
-        );
-      }
-    }
-  );
+    );
+  } else {
+    res.status(404).json({ result: false, message: "data error" });
   }
-  else{
-    res.status(404).json({'result':false,'message':'data error'})
-  }
-
-  
 };
 
 exports.show = (req, res) => {
@@ -101,6 +86,7 @@ exports.store = (req, res) => {
   //console.log(req.body);
 
   if (titulo && descripcion && user) {
+    // obtiene id de usuario
     db.connection.query(
       `SELECT id FROM users WHERE name = ?`,
       [user],
@@ -110,40 +96,53 @@ exports.store = (req, res) => {
           throw err;
         }
         if (row.length > 0) {
+          let id_user = row[0].id;
 
-          
+          //-----------------
 
-            //-----------------
-
-              db.connection.query(
-      `INSERT INTO ${table}(titulo,descripcion,isDone,create_at,update_at,id_user) 
+          db.connection.query(
+            //con el id de usuario agrega la tarea en tabla tareas
+            `INSERT INTO tarea (titulo,descripcion,isDone,create_at,update_at,id_user) 
         VALUES('${titulo}',
         '${descripcion}',
         ${0},
         '${moment().format("LLL")}',
         '${moment().format("LLL")}',
-        ${row[0].id})`,
-      (err, rows) => {
-        if (err) {
-          res.status(500).json({
-            error: "El registro no pudo ser agregado,intente nuevamente"
-          });
-          throw err;
+        ${id_user})`,
+            (err, rows) => {
+              if (err) {
+                res.status(500).json({
+                  error: "El registro no pudo ser agregado,intente nuevamente"
+                });
+                throw err;
+              }
+
+              let id_tarea = rows.insertId;
+              db.connection.query(
+                //con el id de usuario y el id de la tarea recien creada agrega los campos en tabla intermedia
+
+                `INSERT INTO tarea_usuarios (pk_id_user,pk_id_tarea)
+                VALUES(?,?)`,
+                [id_user, id_tarea],
+                (err, row) => {
+                  if (err) {
+                    res.status(500).json({
+                      result: false,
+                      error:
+                        "El registro no pudo ser agregado,intente nuevamente"
+                    });
+                    throw err;
+                  }
+
+                  res.json({ result: true, post: "Registro agregado" });
+                }
+              );
+            }
+          );
         }
-        res.json({ post: "Registro agregado" });
       }
     );
-
-            //--------------
-
-         
-        }
-      }
-    );
-
-
-} 
-  else {
+  } else {
     res.status(404).json({ result: false, message: "Bad data" });
   }
 };
@@ -166,4 +165,3 @@ exports.edit = (req, res) => {
     }
   );
 };
-

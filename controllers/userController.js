@@ -48,25 +48,7 @@ exports.login = (req, res) => {
     
     
     
-    // if (user && pass) {
-    //   db.connection.query(
-    //     `SELECT * FROM users WHERE name=? AND pass=?`,
-    //     [user, pass],
-    //     (err, rows) => {
-    //       if (err) {
-    //         res.status(500).json({ error: "dbError" });
-    //         throw err;
-    //       }
-         
-    //       if (rows.length > 0) {
-    //         res.json({ result: true, user: rows[0] });
-    //       } else {
-    //         res.status(404).json({ result: "unautorizhed" });
-    //       }
-    //     }
-    //   );
-    // } 
-    
+   
     else {
       res.status(403).json({'result':false,'message':"bad data"});
     }
