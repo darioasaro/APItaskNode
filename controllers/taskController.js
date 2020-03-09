@@ -141,25 +141,7 @@ exports.store = (req, res) => {
       }
     );
 
-  //   db.connection.query(
-  //     `INSERT INTO ${table}(titulo,descripcion,isDone,create_at,update_at,id_user) 
-  //       VALUES('${titulo}',
-  //       '${descripcion}',
-  //       ${0},
-  //       '${moment().format("LLL")}',
-  //       '${moment().format("LLL")}',
-  //       ${2})`,
-  //     (err, rows) => {
-  //       if (err) {
-  //         res.status(500).json({
-  //           error: "El registro no pudo ser agregado,intente nuevamente"
-  //         });
-  //         throw err;
-  //       }
-  //       res.json({ post: "Registro agregado" });
-  //     }
-  //   );
-  // 
+
 } 
   else {
     res.status(404).json({ result: false, message: "Bad data" });
