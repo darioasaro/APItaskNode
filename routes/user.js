@@ -4,6 +4,7 @@ const express = require( 'express' )
 const router = express.Router()
 
 
+router.get('/',userController.index)
 router.post('/',(req,res)=>{
     res.status(404).json({'result':false,'message':'recurso invalido'})
 })

@@ -12,6 +12,8 @@ router.post('/',taskController.store)
 router.delete('/:id',taskController.delete)
 router.patch('/:id',taskController.upgrade)
 router.put('/:id',taskController.edit)
+router.get('/partner/:id',taskController.intermediateShow)
+router.post('/partner',taskController.intermediate)
 
 
 

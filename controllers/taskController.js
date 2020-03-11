@@ -8,17 +8,14 @@ exports.index = (req, res) => {
 
   if (user) {
     db.connection.query(
-      `SELECT * FROM tarea t 
+      `SELECT t.id ,t.titulo,t.descripcion,t.isDone,t.id_user,u.name FROM tarea t 
     INNER JOIN users u ON t.id_user = u.id 
     WHERE u.name = ? 
     AND t.delete_at IS NULL`,
       [user],
       (err, rows) => {
         if (err) throw err;
-
-        console.log("Data received from Db:" + rows);
-
-        res.json({ tasks: rows });
+        res.json({ 'tasks': rows });
       }
     );
   } else {
@@ -165,3 +162,44 @@ exports.edit = (req, res) => {
     }
   );
 };
+
+exports.intermediate = (req,res)=>{
+  var id_user = req.body.user
+  var id_tarea = req.body.task
+  console.log('request',req.body)
+  db.connection.query(
+    //con el id de usuario y el id de la tarea recien creada agrega los campos en tabla intermedia
+
+    `INSERT INTO tarea_usuarios (pk_id_user,pk_id_tarea)
+    VALUES(?,?)`,
+    [id_user, id_tarea],
+    (err, row) => {
+      if (err) {
+        res.status(500).json({
+          result: false,
+          error:
+            "El registro no pudo ser agregado,intente nuevamente"
+        });
+        throw err;
+      }
+
+      res.json({ result: true, post: "Registro agregado" });
+    }
+  );
+ 
+}
+
+exports.intermediateShow = (req,res)=>{
+  var id_params = req.params.id
+
+  db.connection.query(`SELECT u.name FROM users u 
+    INNER JOIN tarea_usuarios t ON t.pk_id_user = u.id 
+    WHERE t.pk_id_tarea = ?`,[id_params],(err,rows)=>{
+        if(err)throw err
+        res.json(rows)
+    } )
+  
+  
+ 
+    
+}
